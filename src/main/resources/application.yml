@@ -1,0 +1,30 @@
+server:
+  port: 8080
+
+spring:
+  main:
+    web-application-type: reactive  # ensures Netty server
+  cloud:
+    gateway:
+      routes:
+
+        - id: user-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/user_service/**   # matches /api/users, /api/users/profile, /api/users/profile/5, etc.
+          filters:
+            - StripPrefix=2        # removes /api so downstream sees /users/**
+
+
+        - id: inventory-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/inventory_service/**   # matches /api/users, /api/users/profile, /api/users/profile/5, etc.
+          filters:
+            - StripPrefix=2        # removes /api so downstream sees /users/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
